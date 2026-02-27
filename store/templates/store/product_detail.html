@@ -1,0 +1,105 @@
+<!-- store/templates/store/product_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="detail-overlay active" id="detailOverlay">
+    <div class="detail-panel">
+        <button class="close-detail" onclick="window.location.href='{% url 'store:home' %}'">&times;</button>
+        <div class="detail-left">
+            <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        </div>
+        <div class="detail-right">
+            <h2 class="detail-title">{{ product.name }}</h2>
+            <div class="detail-price">
+                ${{ product.price }}
+                {% if product.old_price %}
+                    <span>${{ product.old_price }}</span>
+                {% endif %}
+            </div>
+            
+            <p class="product-description">{{ product.description }}</p>
+            
+            <form id="addToCartForm" method="post" action="{% url 'store:cart_add' %}">
+                {% csrf_token %}
+                <input type="hidden" name="product_id" value="{{ product.id }}">
+                
+                <div class="size-label"><i class="fas fa-ruler-combined"></i>select size</div>
+                <div class="size-options">
+                    {% for size in product.available_sizes %}
+                        <button type="button" class="size-btn" data-size="{{ size }}">{{ size }}</button>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="size" id="selectedSize" value="M">
+                
+                <div class="quantity-selector">
+                    <label for="quantity">Quantity:</label>
+                    <input type="number" name="quantity" id="quantity" min="1" max="10" value="1">
+                </div>
+                
+                <div class="detail-actions">
+                    <button type="submit" class="detail-btn primary" id="addToCartBtn">
+                        <i class="fas fa-cart-plus"></i> add to cart
+                    </button>
+                    <button type="button" class="detail-btn secondary" id="buyNowBtn">
+                        <i class="fas fa-bolt"></i> buy now
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const sizeBtns = document.querySelectorAll('.size-btn');
+    const sizeInput = document.getElementById('selectedSize');
+    
+    sizeBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            sizeBtns.forEach(b => b.classList.remove('selected'));
+            this.classList.add('selected');
+            sizeInput.value = this.dataset.size;
+        });
+    });
+    
+    // Select first size by default
+    if (sizeBtns.length > 0) {
+        sizeBtns[0].classList.add('selected');
+        sizeInput.value = sizeBtns[0].dataset.size;
+    }
+    
+    document.getElementById('addToCartForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        fetch('{% url "store:cart_add" %}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({
+                product_id: '{{ product.id }}',
+                quantity: document.getElementById('quantity').value,
+                size: document.getElementById('selectedSize').value
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Added to cart!');
+                window.location.href = '{% url "store:cart_detail" %}';
+            }
+        });
+    });
+    
+    document.getElementById('buyNowBtn').addEventListener('click', function() {
+        document.getElementById('addToCartForm').submit();
+        // In a real app, you'd redirect to checkout
+        setTimeout(() => {
+            window.location.href = '{% url "store:checkout" %}';
+        }, 500);
+    });
+});
+</script>
+{% endblock %}

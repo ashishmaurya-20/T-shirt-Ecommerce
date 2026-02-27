@@ -1,0 +1,46 @@
+<!-- store/templates/base.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Loom State{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="logo">
+            <div class="logo-img"><i class="fas fa-shirt"></i></div>
+            <a href="{% url 'store:home' %}" class="logo-text">loom&nbsp;state</a>
+        </div>
+        <div class="nav-buttons">
+            <a href="{% url 'store:cart_detail' %}" class="nav-btn cart-btn">
+                <i class="fas fa-shopping-cart"></i>
+                Cart <span class="cart-count">{{ cart_item_count }}</span>
+            </a>
+            {% if user.is_authenticated %}
+                <span class="nav-btn">Hi, {{ user.first_name }}</span>
+                <a href="{% url 'store:logout' %}" class="nav-btn">Logout</a>
+            {% else %}
+                <a href="{% url 'store:login' %}" class="nav-btn"><i class="fas fa-sign-in-alt"></i>Log in</a>
+                <a href="{% url 'store:signup' %}" class="nav-btn signup">Sign up <i class="fas fa-user-plus"></i></a>
+            {% endif %}
+        </div>
+    </nav>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="message {{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% block content %}
+    {% endblock %}
+
+    <script src="{% static 'js/main.js' %}"></script>
+</body>
+</html>
