@@ -1,14 +1,17 @@
 # tshirt_store/settings.py
+
 import os
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-your-secret-key-here'
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'your-secret-key-here'  # You can keep your existing key
 
-DEBUG = True
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['yourusername.pythonanywhere.com', 'localhost', '127.0.0.1']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -17,7 +20,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'store',  # Our store app
+    'store',
 ]
 
 MIDDLEWARE = [
@@ -43,7 +46,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'store.context_processors.cart_item_count',  # Custom cart processor
+                'store.context_processors.cart_item_count',
             ],
         },
     },
@@ -72,14 +75,18 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'  # Set to your timezone
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
+STATIC_ROOT = '/home/yourusername/tshirt_store/static'  # Update with your username
 STATICFILES_DIRS = [BASE_DIR / 'static']
+
+# Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = '/home/yourusername/tshirt_store/media'  # Update with your username
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -88,11 +95,12 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
 
-# Session settings for cart
-SESSION_ENGINE = 'django.contrib.sessions.backends.db'
-CART_SESSION_ID = 'cart'
-
-# Add these at the bottom of your settings file
-RAZORPAY_KEY_ID = 'rzp_test_SKnVHu9rrMp10F'  # Replace with your actual Razorpay key
-RAZORPAY_KEY_SECRET = 'XaAyWBJI4C8JGSfrT8uq2PLK'  # Replace with your actual Razorpay secret
+# Razorpay Settings
+RAZORPAY_KEY_ID = 'rzp_test_your_test_key'  # Use your test key for now
+RAZORPAY_KEY_SECRET = 'your_test_secret'
 RAZORPAY_CURRENCY = 'INR'
+
+# Security Settings for Production
+SECURE_SSL_REDIRECT = False  # PythonAnywhere handles SSL
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = True
