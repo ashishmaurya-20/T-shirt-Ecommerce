@@ -65,14 +65,6 @@ class Cart(models.Model):
     def get_total_items(self):
         return sum(item.quantity for item in self.items.all())
 
-class CartItem(models.Model):
-    cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(default=1)
-    size = models.CharField(max_length=3)
-    
-    def get_cost(self):
-        return self.product.price * self.quantity
 
 class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True)
@@ -101,6 +93,23 @@ class Order(models.Model):
     def get_total_cost(self):
         return sum(item.get_cost() for item in self.items.all())
 
+# store/models.py - Update the get_cost methods
+
+class CartItem(models.Model):
+    cart = models.ForeignKey(Cart, related_name='items', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField(default=1)
+    size = models.CharField(max_length=3)
+    
+    def get_cost(self):
+        """Calculate the cost of this cart item"""
+        try:
+            if self.product and self.product.price:
+                return self.product.price * self.quantity
+            return 0
+        except (TypeError, AttributeError):
+            return 0
+
 class OrderItem(models.Model):
     order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, related_name='order_items', on_delete=models.CASCADE)
@@ -109,7 +118,13 @@ class OrderItem(models.Model):
     size = models.CharField(max_length=3)
     
     def get_cost(self):
-        return self.price * self.quantity
+        """Calculate the cost of this order item"""
+        try:
+            if self.price is not None:
+                return self.price * self.quantity
+            return 0
+        except (TypeError, AttributeError):
+            return 0
     
     def __str__(self):
         return f'{self.product.name} x {self.quantity}'
